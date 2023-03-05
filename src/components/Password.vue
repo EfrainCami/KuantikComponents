@@ -6,7 +6,7 @@
     </div>
     <div class="flex space-x-3">
       <input
-        v-model="inputPassword"
+        v-model="formData.inputPasswordForm"
         class="w-80 p-2 border-2 rounded-md border-green-400"
         :type="passwordVisible"
         name=""
@@ -22,12 +22,13 @@
       />
     </div>
 
-    <div class="flex mt-2 items-center">
+    <div class="flex mt-2 items-center transition">
       <p class="text-lg">Nivel de seguridad:</p>
-      <p :class="{ 'fill-green-500': securityWeak }" class="text-lg">
+      <p :class="{'text-red-500': securityWeak, 'text-yellow-500': securityMedium, 'text-green-500': securityStrong}" class="text-lg transition">
         {{ securityLevelDescription }}
       </p>
       <svg
+      class="transition"
         :class="{'fill-red-500': securityWeak, 'fill-yellow-500': securityMedium, 'fill-green-500': securityStrong}"
         height="24"
         viewBox="0 0 24 24"
@@ -192,12 +193,11 @@ const checkSecurityLevel = (securityLevel) => {
 };
 
 const formData = reactive({
-  inputPasswordForm: inputPassword.value,
+  inputPasswordForm: "",
 });
 
 const rules = {
   inputPasswordForm: {
-    required,
     minLength: minLength(8),
     maxLength: maxLength(20),
     hasLowerCase,
@@ -207,12 +207,10 @@ const rules = {
   },
 };
 
-const v$ = useVuelidate(rules, inputPassword.value);
-
-console.log(hasUpperCase("AAAA"));
+const v$ = useVuelidate(rules, formData);
 
 onUpdated(() => {
-  checkSecurityLevel(checkPassword(inputPassword.value));
+  checkSecurityLevel(checkPassword(formData.inputPasswordForm));
 });
 
 const submit = async () => {
