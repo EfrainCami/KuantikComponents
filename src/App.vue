@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center bg-gray-300 h-screen">
+  <div class="flex items-center justify-center bg-gray-500 h-screen">
     <Password></Password>
   </div>
 </template>
