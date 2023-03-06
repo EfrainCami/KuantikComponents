@@ -206,7 +206,7 @@ const rules = {
     hasSpecialCharacters,
   },
 };
-
+ 
 const v$ = useVuelidate(rules, formData);
 
 onUpdated(() => {
