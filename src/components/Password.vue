@@ -8,27 +8,24 @@
                 <div class="flex items-center space-x-4">
                     <h1 class="font-semibold text-4xl">Restablezca su contraseña</h1>
                 </div>
-                <div>
-
-                </div>
-                <div class="flex flex-col space-y-3">
-                    <div class="flex items-center space-x-3">
-                        <input v-model="formData.inputPasswordForm"
-                            class="w-80 h-10 p-2 border-2 rounded-md border-green-400" :type="passwordVisible" name="" id=""
-                            placeholder="Contraseña" maxlength="20" />
+                <div class="flex">
+                    <div class="flex flex-col space-y-3">
+                        <div class="flex items-center">
+                            <input v-model="formData.inputPasswordForm"
+                                class="w-80 h-10 p-2 border-2 rounded-md border-green-400" :type="passwordVisible" name=""
+                                id="" placeholder="Contraseña" maxlength="20" />
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <input v-model="formData.inputRepeatPasswordForm"
+                                class="w-80 h-10 p-2 border-2 rounded-md border-green-400" :type="passwordVisible" name=""
+                                id="" placeholder="Repetir contraseña" maxlength="20" />
+                                <p class="text-red-500" v-if="v$.inputRepeatPasswordForm.$error">* Las contraseñas no coinciden</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center ml-6">
                         <img class="cursor-pointer h-8" @click="showPassword" :src="eyeIcon" alt="Mostrar contraseña" />
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <input v-model="formData.inputRepeatPasswordForm"
-                            class="w-80 h-10 p-2 border-2 rounded-md border-green-400" :type="repeatPasswordVisible" name="" id=""
-                            placeholder="Contraseña" maxlength="20" />
-                        <img class="cursor-pointer h-8" @click="showRepeatPassword" :src="eyeIconRepeat" alt="Mostrar contraseña" />
-                    </div>
                 </div>
-                <div>
-                    <img class="cursor-pointer h-8" @click="showRepeatPassword" :src="eyeIconRepeat" alt="Mostrar contraseña" />
-                </div>
-
 
                 <div class="flex items-center transition">
                     <p class="text-lg">Nivel de seguridad:</p>
@@ -50,32 +47,31 @@
                 </div>
             </div>
 
-
             <div class="flex flex-col  w-full justify-center items-center bg-gray-200">
                 <p class="my-4 text-xl font-semibold">La contraseña debe contener:</p>
                 <div class="flex flex-col items-start text-xl space-y-4">
                     <div class="flex justify-center items-center">
-                        <img :class="{ hidden: !checkEightCharacters }" class="h-4 mr-2"
-                            src="../assets/heavy-check-mark.svg" alt="" />
+                        <img class="h-4 mr-2"
+                        :src="checkLowerCase ? checkImage : crossImage" alt="" />
                         <p>8 caracteres como mínimo</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img :class="{ hidden: !checkLowerCase }" class="h-4 mr-2" src="../assets/heavy-check-mark.svg"
+                        <img class="h-4 mr-2" :src="checkLowerCase ? checkImage : crossImage"
                             alt="" />
                         <p>Minúsculas</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img :class="{ hidden: !checkUpperCase }" class="h-4 mr-2" src="../assets/heavy-check-mark.svg"
+                        <img class="h-4 mr-2" :src="checkUpperCase ? checkImage : crossImage"
                             alt="" />
                         <p>Mayúsculas</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img :class="{ hidden: !checkSpecialCharacters }" class="h-4 mr-2"
+                        <img class="h-4 mr-2" :src="checkSpecialCharacters ? checkImage : crossImage"
                             src="../assets/heavy-check-mark.svg" alt="" />
                         <p>Símbolos (!$#%)</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img :class="{ hidden: !checkNumbers }" class="h-4 mr-2" src="../assets/heavy-check-mark.svg"
+                        <img class="h-4 mr-2" :src="checkNumbers ? checkImage : crossImage"
                             alt="" />
                         <p>Números</p>
                     </div>
@@ -92,13 +88,16 @@
 <script setup>
 import { ref, reactive, onUpdated } from "vue";
 import { useVuelidate } from "@vuelidate/core";
-import { minLength, maxLength } from "@vuelidate/validators";
+import { minLength, maxLength, sameAs, helpers } from "@vuelidate/validators";
 
 const inputPassword = ref("");
 const passwordVisible = ref("password");
 const repeatPasswordVisible = ref("password");
 const eyeIcon = ref("/src/assets/eye-password-hide.svg");
 const eyeIconRepeat = ref("/src/assets/eye-password-hide.svg");
+
+const checkImage = ref("/src/assets/heavy-check-mark.svg")
+const crossImage = ref("/src/assets/cross-mark.svg")
 
 const checkEightCharacters = ref(false);
 const checkLowerCase = ref(false);
@@ -113,16 +112,6 @@ const showPassword = () => {
     } else {
         passwordVisible.value = "password";
         eyeIcon.value = "/src/assets/eye-password-hide.svg";
-    }
-};
-
-const showRepeatPassword = () => {
-    if (repeatPasswordVisible.value === "password") {
-        repeatPasswordVisible.value = "text";
-        eyeIconRepeat.value = "/src/assets/eye-password-show.svg";
-    } else {
-        repeatPasswordVisible.value = "password";
-        eyeIconRepeat .value = "/src/assets/eye-password-hide.svg";
     }
 };
 
@@ -146,9 +135,15 @@ const hasEightCharacters = (str) => {
     return str.length > 7;
 };
 
+const confirmPassword = (value) => value === formData.inputPasswordForm;
+
 const checkPassword = (str) => {
+    checkSpecialCharacters.value = false
     checkEightCharacters.value = false
     checkLowerCase.value = false
+    checkUpperCase.value = false
+    checkNumbers.value = false
+
     let securityLevel = 0;
     if (hasEightCharacters(str)) {
         checkEightCharacters.value = true;
@@ -201,21 +196,28 @@ const formData = reactive({
     inputRepeatPasswordForm: ""
 });
 
+let password = ""
+
 const rules = {
     inputPasswordForm: {
-        minLength: minLength(8),
-        maxLength: maxLength(20),
-        hasLowerCase,
-        hasNumbers,
-        hasUpperCase,
-        hasSpecialCharacters,
+        minLength: helpers.withMessage("La contraseña debe contener almenos 8 caracteres", minLength(8)),
+        maxLength: helpers.withMessage("La contraseña no debe tener más de 20 caracteres", maxLength(20)),
+        hasLowerCase: helpers.withMessage("La contraseña debe contener al menos un caracter minúsculo", hasLowerCase),
+        hasNumbers: helpers.withMessage("La contraseña debe contener al menos un número", hasNumbers),
+        hasUpperCase: helpers.withMessage("La contraseña debe contener al menos un caracter mayúsculo", hasUpperCase),
+        hasSpecialCharacters: helpers.withMessage("La contraseña debe contener al menos un caracter especial (!%$&)", hasSpecialCharacters),
     },
+    inputRepeatPasswordForm: {
+        confirmPassword
+    }
+
 };
 
 const v$ = useVuelidate(rules, formData);
 
 onUpdated(() => {
     checkSecurityLevel(checkPassword(formData.inputPasswordForm));
+    password = formData.inputPasswordForm
 });
 
 const submit = async () => {
@@ -225,7 +227,13 @@ const submit = async () => {
     if (result) {
         alert("Contraseña correcta");
     } else {
-        alert("Contraseña incorrecta");
+        let errors = []
+        for (let index = 0; index < v$.value.$errors.length; index++) {
+            errors.push(v$.value.$errors[index].$message)
+        }
+        console.log(errors)
+        console.log(v$.value.$errors[0].$message)
+        alert("Contraseña incorrecta: " + errors);
     }
 };
 </script>
