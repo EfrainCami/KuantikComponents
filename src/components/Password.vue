@@ -1,9 +1,9 @@
 <template>
-    <div class="flex h-fit rounded-3xl overflow-hidden bg-white">
+    <div class="flex h-fit rounded-3xl overflow-hidden bg-white w-1/2 2xl:w-auto">
         <div class="hidden 2xl:block">
-            <img src="../assets/back.jpg" alt="Kuantik" />
+            <img class="h-full object-cover" src="../assets/back.jpg" alt="Kuantik" />
         </div>
-        <div class="flex flex-col 2xl:w-2/3 items-center justify-center">
+        <div class="flex flex-col w-full 2xl:w-2/3 items-center justify-center">
             <div class="flex flex-col items-center space-y-4 p-4">
                 <div class="flex items-center space-x-4">
                     <h1 class="font-semibold text-4xl">Restablezca su contraseña</h1>
@@ -47,21 +47,21 @@
                 </div>
             </div>
 
-            <div class="flex flex-col  w-full justify-center items-center bg-gray-200">
+            <div class="flex flex-col w-full justify-center items-center bg-gray-200">
                 <p class="my-4 text-xl font-semibold">La contraseña debe contener:</p>
-                <div class="flex flex-col items-start text-xl space-y-4">
+                <div class="flex flex-col items-start text-xl space-y-2 2xl:space-y-4">
                     <div class="flex justify-center items-center">
                         <img class="h-4 mr-2"
-                        :src="changeImage.set(checkLowerCase)" alt="" />
+                        :src="checkEightCharacters ? checkImage : crossImage" alt="" />
                         <p>8 caracteres como mínimo</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img class="h-4 mr-2" :src="changeLowerCase"
+                        <img class="h-4 mr-2" :src="checkLowerCase ? checkImage : crossImage"
                             alt="" />
                         <p>Minúsculas</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img class="h-4 mr-2" :src="changeUpperCase"
+                        <img class="h-4 mr-2" :src="checkUpperCase ? checkImage : crossImage"
                             alt="" />
                         <p>Mayúsculas</p>
                     </div>
@@ -86,36 +86,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, onUpdated, computed } from "vue";
+import { ref, reactive, onUpdated } from "vue";
 import { useVuelidate } from "@vuelidate/core";
-import { minLength, maxLength, sameAs, helpers } from "@vuelidate/validators";
+import { minLength, maxLength, helpers } from "@vuelidate/validators";
 
-const inputPassword = ref("");
 const passwordVisible = ref("password");
 const eyeIcon = ref("/src/assets/eye-password-hide.svg");
 
 
 const checkImage = ref("/src/assets/heavy-check-mark.svg")
 const crossImage = ref("/src/assets/cross-mark.svg")
-
-const valueChecked = ref(false)
-
-const changeImage = computed({
-    get() {
-        return checkLowerCase.value ? '/src/assets/heavy-check-mark.svg' : '/src/assets/cross-mark.svg'      
-    },
-    set(valueChecked) {
-        valueChecked.value = false
-    }
-});
-
-const changeLowerCase = computed(() => {
-  return checkLowerCase.value ? '/src/assets/heavy-check-mark.svg' : '/src/assets/cross-mark.svg'
-})
-
-const changeUpperCase = computed(() => {
-  return checkUpperCase.value ? '/src/assets/heavy-check-mark.svg' : '/src/assets/cross-mark.svg'
-})
 
 const checkEightCharacters = ref(false);
 const checkLowerCase = ref(false);
@@ -235,13 +215,10 @@ const v$ = useVuelidate(rules, formData);
 
 onUpdated(() => {
     checkSecurityLevel(checkPassword(formData.inputPasswordForm));
-    password = formData.inputPasswordForm
 });
 
 const submit = async () => {
-    console.log(formData.inputPasswordForm);
     const result = await v$.value.$validate();
-    console.log(result);
     if (result) {
         alert("Contraseña correcta");
     } else {
@@ -249,9 +226,6 @@ const submit = async () => {
         for (let index = 0; index < v$.value.$errors.length; index++) {
             errors.push(v$.value.$errors[index].$message)
         }
-        console.log(errors)
-        console.log(v$.value.$errors[0].$message)
-        alert("Contraseña incorrecta: " + errors);
     }
 };
 </script>
