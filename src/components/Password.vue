@@ -52,16 +52,16 @@
                 <div class="flex flex-col items-start text-xl space-y-4">
                     <div class="flex justify-center items-center">
                         <img class="h-4 mr-2"
-                        :src="checkLowerCase ? checkImage : crossImage" alt="" />
+                        :src="changeImage.set(checkLowerCase)" alt="" />
                         <p>8 caracteres como mínimo</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img class="h-4 mr-2" :src="checkLowerCase ? checkImage : crossImage"
+                        <img class="h-4 mr-2" :src="changeLowerCase"
                             alt="" />
                         <p>Minúsculas</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img class="h-4 mr-2" :src="checkUpperCase ? checkImage : crossImage"
+                        <img class="h-4 mr-2" :src="changeUpperCase"
                             alt="" />
                         <p>Mayúsculas</p>
                     </div>
@@ -86,18 +86,36 @@
 </template>
 
 <script setup>
-import { ref, reactive, onUpdated } from "vue";
+import { ref, reactive, onUpdated, computed } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { minLength, maxLength, sameAs, helpers } from "@vuelidate/validators";
 
 const inputPassword = ref("");
 const passwordVisible = ref("password");
-const repeatPasswordVisible = ref("password");
 const eyeIcon = ref("/src/assets/eye-password-hide.svg");
-const eyeIconRepeat = ref("/src/assets/eye-password-hide.svg");
+
 
 const checkImage = ref("/src/assets/heavy-check-mark.svg")
 const crossImage = ref("/src/assets/cross-mark.svg")
+
+const valueChecked = ref(false)
+
+const changeImage = computed({
+    get() {
+        return checkLowerCase.value ? '/src/assets/heavy-check-mark.svg' : '/src/assets/cross-mark.svg'      
+    },
+    set(valueChecked) {
+        valueChecked.value = false
+    }
+});
+
+const changeLowerCase = computed(() => {
+  return checkLowerCase.value ? '/src/assets/heavy-check-mark.svg' : '/src/assets/cross-mark.svg'
+})
+
+const changeUpperCase = computed(() => {
+  return checkUpperCase.value ? '/src/assets/heavy-check-mark.svg' : '/src/assets/cross-mark.svg'
+})
 
 const checkEightCharacters = ref(false);
 const checkLowerCase = ref(false);
@@ -168,6 +186,8 @@ const checkPassword = (str) => {
     return securityLevel;
 };
 
+let password = ""
+
 const securityWeak = ref(false);
 const securityMedium = ref(false);
 const securityStrong = ref(false);
@@ -195,8 +215,6 @@ const formData = reactive({
     inputPasswordForm: "",
     inputRepeatPasswordForm: ""
 });
-
-let password = ""
 
 const rules = {
     inputPasswordForm: {
