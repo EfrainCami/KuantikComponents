@@ -13,13 +13,14 @@
                         <div class="flex items-center">
                             <input v-model="formData.inputPasswordForm"
                                 class="w-80 h-10 p-2 border-2 rounded-md border-green-400" :type="passwordVisible" name=""
-                                id="" placeholder="Contraseña" maxlength="20" />
+                                placeholder="Contraseña" maxlength="20" />
                         </div>
                         <div class="flex flex-col items-center">
                             <input v-model="formData.inputRepeatPasswordForm"
                                 class="w-80 h-10 p-2 border-2 rounded-md border-green-400" :type="passwordVisible" name=""
-                                id="" placeholder="Repetir contraseña" maxlength="20" />
-                                <p class="text-red-500" v-if="v$.inputRepeatPasswordForm.$error">* Las contraseñas no coinciden</p>
+                                placeholder="Repetir contraseña" maxlength="20" />
+                            <p class="text-red-500" v-if="v$.inputRepeatPasswordForm.$error">* Las contraseñas no coinciden
+                            </p>
                         </div>
                     </div>
                     <div class="flex items-center ml-6">
@@ -29,10 +30,7 @@
 
                 <div class="flex items-center transition">
                     <p class="text-lg">Nivel de seguridad:</p>
-                    <p :class="{
-                        'text-red-500': securityWeak,
-                        'text-yellow-500': securityMedium,
-                        'text-green-500': securityStrong,
+                    <p :class="{ changeSecurityLevelColor
                     }" class="text-lg transition">
                         {{ securityLevelDescription }}
                     </p>
@@ -49,30 +47,26 @@
 
             <div class="flex flex-col w-full justify-center items-center bg-gray-200">
                 <p class="my-4 text-xl font-semibold">La contraseña debe contener:</p>
-                <div class="flex flex-col items-start text-xl space-y-2 2xl:space-y-4">
+                <div class="flex flex-col items-start space-y-2 2xl:space-y-4">
                     <div class="flex justify-center items-center">
-                        <img class="h-4 mr-2"
-                        :src="checkEightCharacters ? checkImage : crossImage" alt="" />
+                        <img class="h-3 mr-2" :src="checkEightCharacters ? checkImage : crossImage" alt="" />
                         <p>8 caracteres como mínimo</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img class="h-4 mr-2" :src="checkLowerCase ? checkImage : crossImage"
-                            alt="" />
+                        <img class="h-3 mr-2" :src="checkLowerCase ? checkImage : crossImage" alt="" />
                         <p>Minúsculas</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img class="h-4 mr-2" :src="checkUpperCase ? checkImage : crossImage"
-                            alt="" />
+                        <img class="h-3 mr-2" :src="checkUpperCase ? checkImage : crossImage" alt="" />
                         <p>Mayúsculas</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img class="h-4 mr-2" :src="checkSpecialCharacters ? checkImage : crossImage"
+                        <img class="h-3 mr-2" :src="checkSpecialCharacters ? checkImage : crossImage"
                             src="../assets/heavy-check-mark.svg" alt="" />
                         <p>Símbolos (!$#%)</p>
                     </div>
                     <div class="flex justify-center items-center">
-                        <img class="h-4 mr-2" :src="checkNumbers ? checkImage : crossImage"
-                            alt="" />
+                        <img class="h-3 mr-2" :src="checkNumbers ? checkImage : crossImage" alt="" />
                         <p>Números</p>
                     </div>
                 </div>
@@ -86,14 +80,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, onUpdated } from "vue";
+import { ref, reactive, onUpdated, computed } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { minLength, maxLength, helpers } from "@vuelidate/validators";
 
 const passwordVisible = ref("password");
 const eyeIcon = ref("/src/assets/eye-password-hide.svg");
-
-
 const checkImage = ref("/src/assets/heavy-check-mark.svg")
 const crossImage = ref("/src/assets/cross-mark.svg")
 
@@ -166,8 +158,6 @@ const checkPassword = (str) => {
     return securityLevel;
 };
 
-let password = ""
-
 const securityWeak = ref(false);
 const securityMedium = ref(false);
 const securityStrong = ref(false);
@@ -222,10 +212,7 @@ const submit = async () => {
     if (result) {
         alert("Contraseña correcta");
     } else {
-        let errors = []
-        for (let index = 0; index < v$.value.$errors.length; index++) {
-            errors.push(v$.value.$errors[index].$message)
-        }
+        alert("Contraseña incorrecta")
     }
 };
 </script>

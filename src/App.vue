@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import Password from './components/Password.vue';
+import Password from './components/ChangePassword.vue';
 
 
 </script>
